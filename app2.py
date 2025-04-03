@@ -1,28 +1,96 @@
 import streamlit as st
 import google.generativeai as genai
-import google.generativeai as genai
 import PyPDF2
-#import os
-#from dotenv import load_dotenv
+from PIL import Image
+import base64
+import os
 
+# Configuración de la página
+st.set_page_config(page_title="Asistente Académico", page_icon="🎓", layout="wide")
 
+# Estilos CSS personalizados
+st.markdown("""
+<style>
+    .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(135deg, #6e48aa 0%, #9d50bb 100%);
+        padding: 1.5rem;
+        border-radius: 10px;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .header-text {
+        flex: 1;
+    }
+    .header-image {
+        width: 80px;
+        height: 80px;
+        margin-left: 1rem;
+    }
+    .question-input-container {
+        margin-top: 1.5rem;
+    }
+    .answer-container {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+</style>
+""", unsafe_allow_html=True)
 
-
-st.header("¿Cuál es tu duda?")
-# Cargar variables de entorno desde el archivo .env
-#load_dotenv()
+# Función para convertir imagen local a base64
+def get_image_base64(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode()
 
 # Configurar la clave API de Google AI
-#GOOGLE_API_KEY = os.getenv("AIzaSyAzPOlBiKoXpqFRLFzG6z_wuqPLE-aay4c")
-genai.configure(api_key="AIzaSyAzPOlBiKoXpqFRLFzG6z_wuqPLE-aay4c")
+genai.configure(api_key="AIzaSyDB8nfedASwDdg-xY4ZsFVeaxr1AzNPLgc")
 
 # Cargar el modelo Gemini
-model = genai.GenerativeModel('gemini-2.0-flash-exp')  # Usar gemini-2.0-flash-exp
+model = genai.GenerativeModel('gemini-2.0-flash-exp')
 
-#pdf_obj= st.file_uploader("Carga tu documento", type= "pdf",)
+# Cargar imagen local para el encabezado
+header_image_path = "chatbot.png"  # Imagen para el título
 
-#st.cache_resource
-user_query = st.text_input("Haz tu pregunta",label_visibility="hidden")
+try:
+    # Convertir imagen a base64
+    header_image_base64 = get_image_base64(header_image_path)
+    
+    # Título llamativo con imagen
+    st.markdown(f"""
+    <div class="header-container">
+        <div class="header-text">
+            <h1 style="color: white; margin: 0;">¿Cuál es tu duda académica?</h1>
+            <p style="color: #f0f0f0; margin: 0;">Obtén respuestas personalizadas de nuestro sistema</p>
+        </div>
+        <img src="data:image/png;base64,{header_image_base64}" class="header-image">
+    </div>
+    """, unsafe_allow_html=True)
+    
+except FileNotFoundError as e:
+    st.error(f"Error al cargar la imagen: {e}. Asegúrate de tener el archivo 'header_icon.png' en el directorio.")
+    # Mostrar título simple si no hay imagen
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #6e48aa 0%, #9d50bb 100%); padding: 1.5rem; border-radius: 10px; color: white; margin-bottom: 2rem;">
+        <h1 style="color: white; margin: 0;">¿Cuál es tu duda académica?</h1>
+        <p style="color: #f0f0f0; margin: 0;">Obtén respuestas personalizadas de nuestro sistema</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Campo de entrada para preguntas
+with st.container():
+    st.markdown('<div class="question-input-container">', unsafe_allow_html=True)
+    user_query = st.text_input("Haz tu pregunta", 
+                             label_visibility="hidden", 
+                             placeholder="Escribe tu pregunta aquí...",
+                             key="question_input")
+    st.markdown('</div>', unsafe_allow_html=True)
+
 def extract_text_from_pdf(pdf_path):
     """Extrae el texto de un PDF."""
     text = ""
@@ -37,42 +105,30 @@ def extract_text_from_pdf(pdf_path):
         return None
     return text
 
-
-
 def chat_with_gemini(pdf_text, user_query):
     """Chatea con Gemini usando el contexto del texto del PDF."""
     if not pdf_text:
         return "No se pudo extraer texto del PDF."
 
     prompt = f"Aquí tienes el contexto del PDF:\n\n{pdf_text}\n\nPregunta: {user_query}"
-    temperature = 0.5
     try:
        response = model.generate_content(prompt)
        return response.text
     except Exception as e:
         return f"Error al interactuar con Gemini: {e}"
 
-
-
-  #  knowledge_base = create_emebddings(pdf_obj)
-   # user_query = st.text_input("Has una pregunta")
-
-    #if user_query:
-        #API_KEY ="AIzaSyAzPOlBiKoXpqFRLFzG6z_wuqPLE-aay4c" #os.environ["API_KEY"]
-        #docs= knowledge_base.similarity_search(user_query, 3)
-        #genai.configure(api_key=API_KEY)
-        #model= genai.GenerativeModel("gemini-1.5-flash")
-        #llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro")
-        #chain = load_qa_chain(llm, chain_type="stuff")
-        #chain = load_qa_chain(model, chain_type="stuff")
-        #respuesta= chain.run(input_document=docs, question= user_question)
-        #respuesta= model.generate_content(user_question)
+# Procesar el PDF y responder preguntas
 pdf_text = extract_text_from_pdf("APDAEMMA.pdf")
 
 if pdf_text and user_query:
-    answer = chat_with_gemini(pdf_text, user_query)
-    print("Respuesta de Gemini:\n", answer)
-    st.write(answer)
-
-
-
+    with st.spinner('Analizando tu consulta...'):
+        answer = chat_with_gemini(pdf_text, user_query)
+        print("Respuesta de Gemini:\n", answer)
+        
+        # Mostrar la respuesta en un contenedor con estilo
+        st.markdown(f"""
+        <div class="answer-container">
+            <h3 style="color: #2c3e50; margin-top: 0;">Respuesta:</h3>
+            <p style="color: #34495e; line-height: 1.6;">{answer}</p>
+        </div>
+        """, unsafe_allow_html=True)
