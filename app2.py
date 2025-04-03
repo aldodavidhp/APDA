@@ -6,7 +6,7 @@ import base64
 import os
 
 # Configuración de la página
-st.set_page_config(page_title="Asistente Académico", page_icon="🎓", layout="wide")
+st.set_page_config(page_title="Tutor en línea", page_icon="🎓", layout="wide")
 
 # Estilos CSS personalizados
 st.markdown("""
@@ -65,8 +65,8 @@ try:
     st.markdown(f"""
     <div class="header-container">
         <div class="header-text">
-            <h1 style="color: white; margin: 0;">¿Cuál es tu duda académica?</h1>
-            <p style="color: #f0f0f0; margin: 0;">Obtén respuestas personalizadas de nuestro sistema</p>
+            <h1 style="color: white; margin: 0;">¿Cuál es tu duda sobre la formación?</h1>
+            <p style="color: #f0f0f0; margin: 0;">Obtén respuestas personalizadas de nuestro asistente en línea</p>
         </div>
         <img src="data:image/png;base64,{header_image_base64}" class="header-image">
     </div>
