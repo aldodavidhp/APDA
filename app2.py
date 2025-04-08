@@ -67,7 +67,7 @@ try:
         <div class="header-text">
             <h1 style="color: white; margin: 0;">¿Cuál es tu duda sobre la formación?</h1>
             <p style="color: #f0f0f0; margin: 0;">Obtén respuestas con nuestro asistente en línea</p>
-            <p style="color: #f0f0f0; margin: 0;">Escribe tu NOMBRE con APELLIDOS para tener una búsqueda personalizada</p>
+            <p style="color: #f0f0f0; margin: 0;">Escribe tu  <h1 NOMBRE </h1> con APELLIDOS para tener una búsqueda personalizada</p>
         </div>
         <img src="data:image/png;base64,{header_image_base64}" class="header-image">
     </div>
